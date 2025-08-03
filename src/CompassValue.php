@@ -6,6 +6,6 @@
 
 	class CompassValue 
 	{
-		public $Degrees = 0.00;
-		public $Direction = Direction::North;
+		public $degrees = 0.00;
+		public $direction = Direction::NORTH;
 	}

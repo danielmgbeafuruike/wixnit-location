@@ -2,8 +2,6 @@
 
     namespace Wixnit\Location;
 
-    use Wixnit\Location;
-
     /**
      * implimentation of several geo coding and reverse geo coding to improve the rate of geocoding success
      */
@@ -12,7 +10,7 @@
         public static function forward(Location $position) : Address
         {
             return new Address();
-        } 
+        }
 
         public static function reverse(Address $address) : Location
         {

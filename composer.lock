@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "189c75544a8bc017afe13b5c8145d3ff",
+    "content-hash": "7eef055e6787e8f0fb8c62d8d17128c1",
     "packages": [
         {
             "name": "wixnit/core",
-            "version": "1.4.1",
+            "version": "2.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/danielmgbeafuruike/wixnit.git",
-                "reference": "aba6b557136d296a4ff933117cf11353a3c50f14"
+                "reference": "3a9e9ca75ed3c63c69240a37a1f4d4f5f4c80f00"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/danielmgbeafuruike/wixnit/zipball/aba6b557136d296a4ff933117cf11353a3c50f14",
-                "reference": "aba6b557136d296a4ff933117cf11353a3c50f14",
+                "url": "https://api.github.com/repos/danielmgbeafuruike/wixnit/zipball/3a9e9ca75ed3c63c69240a37a1f4d4f5f4c80f00",
+                "reference": "3a9e9ca75ed3c63c69240a37a1f4d4f5f4c80f00",
                 "shasum": ""
             },
             "type": "library",
@@ -42,9 +42,9 @@
             ],
             "support": {
                 "issues": "https://github.com/danielmgbeafuruike/wixnit/issues",
-                "source": "https://github.com/danielmgbeafuruike/wixnit/tree/1.4.1"
+                "source": "https://github.com/danielmgbeafuruike/wixnit/tree/2.0.1"
             },
-            "time": "2024-09-30T20:26:36+00:00"
+            "time": "2025-07-31T15:04:09+00:00"
         }
     ],
     "packages-dev": [],

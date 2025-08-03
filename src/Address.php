@@ -2,16 +2,14 @@
 
     namespace Wixnit\Location;
 
-    use Wixnit\Location;
-
     class Address
     {
-        public string $State = "";
-        public string $Country = "";
-        public string $City = "";
-        public string $Street = "";
-        public string $Housenumber = "";
-        public string $Region = "";
+        public Country $country = new Country();
+        public string $state = "";
+        public string $city = "";
+        public string $street = "";
+        public string $houseNumber = "";
+        public string $region = "";
 
         function __construct()
         {
@@ -20,7 +18,7 @@
 
         public function fullAddress() : string
         {
-            return $this->Housenumber." ".$this->Street." ".((($this->City != null) && ($this->City != "")) ? $this->City : $this->Region)." ".(is_object($this->State) ? $this->State->Name : $this->State).", ".(is_object($this->Country) ? $this->Country->Name : $this->Country);
+            return $this->houseNumber." ".$this->street." ".((($this->city != null) && ($this->city != "")) ? $this->city : $this->region)." ".(is_object($this->state) ? $this->state->name : $this->state).", ".(is_object($this->country) ? $this->country->name : $this->country);
         }
 
         public function reverseGeocode(): Location

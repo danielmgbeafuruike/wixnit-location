@@ -3,21 +3,18 @@
     namespace Wixnit\Location;
 
     use Exception;
-    use Wixnit\Country;
-    use Wixnit\Location;
-    use Wixnit\State;
 
     class LocationReference
     {
         /**
          * @param Address
          */
-        public ?Address $Address = null;
+        public ?Address $address = null;
 
         /**
          * @var array
          */
-        public array $BoundingArea = [];
+        public array $boundingArea = [];
 
         /**
          * @param float
@@ -29,7 +26,7 @@
 
         function __construct(Address $address=null, $positions=[])
         {
-            $this->Address = $address ?? new Address();
+            $this->address = $address ?? new Address();
 
             if(is_array($positions))
             {
@@ -37,7 +34,7 @@
                 {
                     if($positions[$i] instanceof Location)
                     {
-                        $this->BoundingArea[] = $positions[$i];
+                        $this->boundingArea[] = $positions[$i];
                     }
                 }
             }
@@ -45,22 +42,23 @@
 
         public function centerPosition(): Location
         {
-            if(count($this->BoundingArea) == 0)
+            if(count($this->boundingArea) == 0)
             {
                 return new Location();
             }
-            else if(count($this->BoundingArea) == 1)
+            else if(count($this->boundingArea) == 1)
             {
-                return $this->BoundingArea[0];
+                return $this->boundingArea[0];
             }
-            else if(count($this->BoundingArea) == 2)
+            else if(count($this->boundingArea) == 2)
             {
-                return new Location(
-                    (($this->BoundingArea[0]->Latitude + $this->BoundingArea[1]->Latitude) / 2),
-                    (($this->BoundingArea[0]->Longitude + $this->BoundingArea[1]->Longitude) / 2),
-                    (($this->BoundingArea[0]->Altitude + $this->BoundingArea[1]->Altitue) / 2)
-                    (($this->BoundingArea[0]->Accuracy + $this->BoundingArea[1]->Accuracy) / 2)
-                );
+                $ret = new Location();
+                $ret->latitude = (($this->boundingArea[0]->latitude + $this->boundingArea[1]->latitude) / 2);
+                $ret->longitude = (($this->boundingArea[0]->longitude + $this->boundingArea[1]->longitude) / 2);
+                $ret->latitude = (($this->boundingArea[0]->altitude + $this->boundingArea[1]->latitude) / 2);
+                $ret->accuracy = (($this->boundingArea[0]->accuracy + $this->boundingArea[1]->accuracy) / 2);
+
+                return $ret;
             }
             else
             {
@@ -71,15 +69,15 @@
 
         public function isInLocation(Location $position): bool
         {
-            if(count($this->BoundingArea) == 0)
+            if(count($this->boundingArea) == 0)
             {
                 return false;
             }
-            else if(count($this->BoundingArea) == 1)
+            else if(count($this->boundingArea) == 1)
             {
-                return $this->BoundingArea[0];
+                return $this->boundingArea[0];
             }
-            else if(count($this->BoundingArea) == 2)
+            else if(count($this->boundingArea) == 2)
             {
                 return false;
             }
@@ -90,12 +88,12 @@
             return false;
         }
 
-        public function Distance (LocationReference $location) : float
+        public function distance (LocationReference $location) : float
         {
             return $this->centerPosition()->Distance($location->centerPosition());
         }
 
-        public function Direction (LocationReference $location) : XDirection
+        public function direction (LocationReference $location) : XDirection
         {
             return LocationReference::GetDirection($this->centerPosition(), $location->centerPosition());
         }
@@ -109,7 +107,7 @@
 
         public function reverseGeocode() : Location
         {
-            return $this->Address->reverseGeocode();
+            return $this->address->reverseGeocode();
         }
 
 
@@ -117,20 +115,20 @@
         public function toString() : string
         {
             $ret = [
-                "Address"=>[
-                    "Country"=>$this->Address->Country,
-                    "State"=>$this->Address->State,
-                    "City"=>$this->Address->City,
-                    "Street"=>$this->Address->Street,
-                    "Region"=>$this->Address->Region,
-                    "Housenumber"=>$this->Address->Housenumber
+                "address"=>[
+                    "country"=>$this->address->country,
+                    "state"=>$this->address->state,
+                    "city"=>$this->address->city,
+                    "street"=>$this->address->street,
+                    "region"=>$this->address->region,
+                    "housenumber"=>$this->address->houseNumber
                 ],
-                "BoundingArea"=>$this->BoundingArea
+                "boundingArea"=>$this->boundingArea
             ];
             return json_encode($ret);
         }
 
-        public static function fromString($string) : LocationReference
+        public static function FromString($string) : LocationReference
         {
             $ret = LocationReference::noWhere();
             try{
@@ -140,145 +138,144 @@
                 {
                     $d = json_decode($string);
 
-                    if(isset($d->Address))
+                    if(isset($d->address))
                     {
-                        if(isset($d->Address->State))
+                        if(isset($d->address->state))
                         {
-                            if(is_string($d->Address->State))
+                            if(is_string($d->address->state))
                             {
-                                $ret->Address->State = new $d->Address->State;
+                                $ret->address->state = new $d->address->state;
                             }
-                            else if($d->Address->State instanceof State)
+                            else if($d->address->state instanceof State)
                             {
-                                if(isset($d->Address->State->Id))
+                                if(isset($d->address->state->Id))
                                 {
-                                    $ret->Address->State = $d->Address->State->Name;
+                                    $ret->address->state = $d->address->state->name;
                                 }
                             }
                         }
-                        if(isset($d->Address->City))
+                        if(isset($d->address->city))
                         {
-                            if(is_string($d->Address->City))
+                            if(is_string($d->address->city))
                             {
-                                $ret->Address->City = $d->Address->City;
+                                $ret->address->city = $d->address->city;
                             }
-                            else if(is_object($d->Address->City))
+                            else if(is_object($d->address->city))
                             {
-                                if(isset($d->Address->City->Id))
+                                if(isset($d->address->city->id))
                                 {
-                                    $ret->Address->City = $d->Address->City->Name;
+                                    $ret->address->city = $d->address->city->name;
                                 }
                             }
                         }
-                        if(isset($d->Address->Country))
+                        if(isset($d->address->country))
                         {
-                            if(is_string($d->Address->Country))
+                            if(is_string($d->address->country))
                             {
-                                $ret->Address->Country = $d->Address->Country;
+                                $ret->address->country = $d->address->country;
                             }
-                            else if($d->Address->Country instanceof Country)
+                            else if($d->address->country instanceof Country)
                             {
-                                $ret->Address->Country = $d->Address->Country->Code;
+                                $ret->address->country = $d->address->country->code;
                             }
                         }
-                        if(isset($d->Address->Region))
+                        if(isset($d->address->region))
                         {
-                            $ret->Address->Region = $d->Address->Region;
+                            $ret->address->region = $d->address->region;
                         }
-                        if(isset($d->Address->Housenumber))
+                        if(isset($d->address->houseNumber))
                         {
-                            $ret->Address->Housenumber = $d->Address->Housenumber;
+                            $ret->address->houseNumber = $d->address->houseNumber;
                         }
-                        if(isset($d->Address->Street))
+                        if(isset($d->address->street))
                         {
-                            $ret->Address->Street = $d->Address->Street;
+                            $ret->address->street = $d->address->street;
                         }
                     }
-                    if(isset($d->BoundingArea))
+                    if(isset($d->boundingArea))
                     {
-                        if(is_array($d->BoundingArea))
+                        if(is_array($d->boundingArea))
                         {
-                            for($i = 0; $i < count($d->BoundingArea); $i++)
+                            for($i = 0; $i < count($d->boundingArea); $i++)
                             {
-                                $ret->BoundingArea[] =
-                                new Location(
-                                    $d->BoundingArea[$i]->Latitude, 
-                                    $d->BoundingArea[$i]->Longitude, 
-                                    $d->BoundingArea[$i]->Altitude, 
-                                    $d->BoundingArea[$i]->Accuracy
-                                );
+                                $ret = new Location();
+                                $ret->latitude = (($d->boundingArea[0]->latitude + $d->boundingArea[1]->latitude) / 2);
+                                $ret->longitude = (($d->boundingArea[0]->longitude + $d->boundingArea[1]->longitude) / 2);
+                                $ret->latitude = (($d->boundingArea[0]->altitude + $d->boundingArea[1]->latitude) / 2);
+                                $ret->accuracy = (($d->boundingArea[0]->accuracy + $d->boundingArea[1]->accuracy) / 2);
+                                $d->boundingArea[] = $ret;
                             }
                         }
                     }
                 }
                 else if(is_object($string))
                 {
-                    if(isset($string->Address))
+                    if(isset($string->address))
                     {
-                        if(isset($string->Address->State))
+                        if(isset($string->address->state))
                         {
-                            if(is_string($string->Address->State))
+                            if(is_string($string->address->state))
                             {
-                                $ret->Address->State = new State($string->Address->State);
+                                $ret->address->state = new State($string->address->state);
                             }
-                            else if(is_object($string->Address->State))
+                            else if(is_object($string->address->state))
                             {
-                                if(isset($string->Address->State->Id))
+                                if(isset($string->address->state->id))
                                 {
-                                    $ret->Address->State = new State($string->Address->State->Id);
+                                    $ret->address->State = new State($string->address->state->id);
                                 }
                             }
                         }
-                        if(isset($string->Address->City))
+                        if(isset($string->address->city))
                         {
-                            if(is_string($string->Address->City))
+                            if(is_string($string->address->city))
                             {
-                                $ret->Address->City = new State($string->Address->City);
+                                $ret->address->city = new State($string->address->city);
                             }
-                            else if(is_object($string->Address->City))
+                            else if(is_object($string->address->City))
                             {
-                                if(isset($string->Address->City->Id))
+                                if(isset($string->address->City->Id))
                                 {
-                                    $ret->Address->City = new State($string->Address->City->Id);
+                                    $ret->address->City = new State($string->address->City->Id);
                                 }
                             }
                         }
-                        if(isset($string->Address->Country))
+                        if(isset($string->address->country))
                         {
-                            if(is_string($string->Address->Country))
+                            if(is_string($string->address->country))
                             {
-                                $ret->Address->Country = $string->Address->Country;
+                                $ret->address->country = $string->address->country;
                             }
-                            else if($string->Address->Country instanceof Country)
+                            else if($string->address->country instanceof Country)
                             {
-                                $ret->Address->Country = $string->Address->Country->Code;
+                                $ret->address->country = $string->address->country->code;
                             }
                         }
-                        if(isset($string->Address->Region))
+                        if(isset($string->address->region))
                         {
-                            $ret->Address->Region = $string->Address->Region;
+                            $ret->address->region = $string->address->region;
                         }
-                        if(isset($string->Address->Housenumber))
+                        if(isset($string->address->houseNumber))
                         {
-                            $ret->Address->Housenumber = $string->Address->Housenumber;
+                            $ret->address->houseNumber = $string->address->houseNumber;
                         }
-                        if(isset($string->Address->Street))
+                        if(isset($string->address->Street))
                         {
-                            $ret->Address->Street = $string->Address->Street;
+                            $ret->address->Street = $string->address->Street;
                         }
                     }
-                    if(isset($string->BoundingArea))
+                    if(isset($string->boundingArea))
                     {
-                        if(is_array($string->BoundingArea))
+                        if(is_array($string->boundingArea))
                         {
-                            for($i = 0; $i < count($string->BoundingArea); $i++)
+                            for($i = 0; $i < count($string->boundingArea); $i++)
                             {
-                                array_push($ret->BoundingArea, 
+                                array_push($ret->boundingArea, 
                                     new Location(
-                                        $string->BoundingArea[$i]->Latitude, 
-                                        $string->BoundingArea[$i]->Longitude, 
-                                        $string->BoundingArea[$i]->Altitude, 
-                                        $string->BoundingArea[$i]->Accuracy
+                                        $string->boundingArea[$i]->Latitude, 
+                                        $string->boundingArea[$i]->Longitude, 
+                                        $string->boundingArea[$i]->Altitude, 
+                                        $string->boundingArea[$i]->Accuracy
                                     )
                                 );
                             }
@@ -298,11 +295,11 @@
          * @return LocationReference
          * fully constructs a Location object that points nowhere
          */
-        public static function noWhere() : LocationReference
+        public static function NoWhere() : LocationReference
         {
             $ret = new LocationReference();
-            $ret->Address = new Address();
-            $ret->BoundingArea = [];
+            $ret->address = new Address();
+            $ret->boundingArea = [];
             return $ret;
         }
 

@@ -4,7 +4,7 @@
 
     enum LocationType : string
     {
-        case LastLocation = "last_location";
-        case GeoIP = "geo_ip";
-        case GPSPosition = "gps_position";
+        case LAST_LOCATION = "last_location";
+        case GEO_IP = "geo_ip";
+        case GPS_POSITION = "gps_position";
     }

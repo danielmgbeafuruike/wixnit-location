@@ -4,13 +4,13 @@
 
     enum Direction : string
     {
-        case North = "north";
-        case South = "south";
-        case East = "east";
-        case West = "west";
-        case NorthEast = "north-east";
-        case NorthWest = "north-west";
-        case SouthEast = "south-east";
-        case SouthWest = "south-west";
-        case Unknown = "unknown";
+        case NORTH = "north";
+        case SOUTH = "south";
+        case EAST = "east";
+        case WEST = "west";
+        case NORTH_EAST = "north-east";
+        case NORTH_WEST = "north-west";
+        case SOUTH_EAST = "south-east";
+        case SOUTH_WEST = "south-west";
+        case UNKNOWN = "unknown";
     }
