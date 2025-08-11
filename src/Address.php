@@ -4,7 +4,7 @@
 
     class Address
     {
-        public Country $country = new Country();
+        public Country $country;
         public string $state = "";
         public string $city = "";
         public string $street = "";
