@@ -1,6 +1,6 @@
 <?php
 
-    namespace Wixnit;
+    namespace Wixnit\Location;
 
     class TimeZone
     {
