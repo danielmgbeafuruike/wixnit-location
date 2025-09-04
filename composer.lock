@@ -8,16 +8,16 @@
     "packages": [
         {
             "name": "wixnit/core",
-            "version": "2.0.3",
+            "version": "2.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/danielmgbeafuruike/wixnit.git",
-                "reference": "545f56f5b4f5c0b6d49e2a0928fbb375ba46a21b"
+                "reference": "576dc4a923bcccf6046285d1c5c4ff34cd5de572"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/danielmgbeafuruike/wixnit/zipball/545f56f5b4f5c0b6d49e2a0928fbb375ba46a21b",
-                "reference": "545f56f5b4f5c0b6d49e2a0928fbb375ba46a21b",
+                "url": "https://api.github.com/repos/danielmgbeafuruike/wixnit/zipball/576dc4a923bcccf6046285d1c5c4ff34cd5de572",
+                "reference": "576dc4a923bcccf6046285d1c5c4ff34cd5de572",
                 "shasum": ""
             },
             "type": "library",
@@ -42,9 +42,9 @@
             ],
             "support": {
                 "issues": "https://github.com/danielmgbeafuruike/wixnit/issues",
-                "source": "https://github.com/danielmgbeafuruike/wixnit/tree/2.0.3"
+                "source": "https://github.com/danielmgbeafuruike/wixnit/tree/2.1.2"
             },
-            "time": "2025-08-03T15:24:34+00:00"
+            "time": "2025-09-01T15:42:39+00:00"
         }
     ],
     "packages-dev": [],

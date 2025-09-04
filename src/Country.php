@@ -14,7 +14,7 @@
 		public string $phoneCode = "";
 		public string $continent = "";
 		public string $currency = "";
-		public string $timeZone = "";
+		public string $timezone = "";
 		public string $region = "";
 		public string $subRegion = "";
 		public string $code3 = "";
@@ -39,11 +39,11 @@
                     $ret->phoneCode = $cnt[$i]->phoneCode;
                     $ret->continent = $cnt[$i]->continent;
                     $ret->currency = $cnt[$i]->currency;
-                    $ret->timeZone = $cnt[$i]->timeZone;
+                    $ret->timezone = $cnt[$i]->timezone;
                     $ret->region = $cnt[$i]->region;
                     $ret->subRegion = $cnt[$i]->subRegion;
                     $ret->code3 = $cnt[$i]->code3;
-                    $ret->language = $cnt[$i]->language;
+                    //$ret->language = $cnt[$i]->language;
 
                     return $ret;
                 }
@@ -66,15 +66,42 @@
                     $this->phoneCode = $cnt[$i]->phoneCode;
                     $this->continent = $cnt[$i]->continent;
                     $this->currency = $cnt[$i]->currency;
-                    $this->timeZone = $cnt[$i]->timeZone;
+                    $this->timezone = $cnt[$i]->timezone;
                     $this->region = $cnt[$i]->region;
                     $this->subRegion = $cnt[$i]->subRegion;
                     $this->code3 = $cnt[$i]->code3;
-                    $this->language = $cnt[$i]->language;
+                    //$this->language = $cnt[$i]->language;
 
                     return;
                 }
             }
+        }
+
+
+        public static function All(): array
+        {
+            $ret = [];
+
+            $cnt = json_decode(Country::COUNTRIES_STRING);
+
+            for($i = 0; $i < count($cnt); $i++)
+            {
+                $c = new Country();
+                $c->name = $cnt[$i]->name;
+                $c->code = $cnt[$i]->code;
+                $c->capital = $cnt[$i]->capital;
+                $c->phoneCode = $cnt[$i]->phoneCode;
+                $c->continent = $cnt[$i]->continent;
+                $c->currency = $cnt[$i]->currency;
+                $c->timezone = $cnt[$i]->timezone;
+                $c->region = $cnt[$i]->region;
+                $c->subRegion = $cnt[$i]->subRegion;
+                $c->code3 = $cnt[$i]->code3;
+                //$c->language = $cnt[$i]->language;
+
+                $ret[] = $c;
+            }
+            return $ret;
         }
 
 
