@@ -4,6 +4,12 @@
 
     class Location
     {
-        public Cordinate $cordinate = Cordinate::Nowhere();
-        public Address $address = new Address();
+        public Cordinate $cordinate;
+        public Address $address;
+
+        function __construct()
+        {
+            $this->cordinate = Cordinate::Nowhere();
+            $this->address = new Address();
+        }
     }

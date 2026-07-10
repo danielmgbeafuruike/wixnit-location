@@ -13,16 +13,18 @@
 
         function __construct()
         {
-            ///TODO to be built later and all
+            $this->country = new Country();
         }
 
         public function fullAddress() : string
         {
-            return $this->houseNumber." ".$this->street." ".((($this->city != null) && ($this->city != "")) ? $this->city : $this->region)." ".(is_object($this->state) ? $this->state->name : $this->state).", ".(is_object($this->country) ? $this->country->name : $this->country);
+            $locality = ($this->city != "") ? $this->city : $this->region;
+
+            return trim($this->houseNumber." ".$this->street." ".$locality." ".$this->state).", ".$this->country->name;
         }
 
         public function reverseGeocode(): Location
         {
-            return Geocoding::reverse($this);
+            return GeoCoding::reverse($this);
         }
     }

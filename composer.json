@@ -13,8 +13,5 @@
             "email": "110927006+danielmgbeafuruike@users.noreply.github.com"
         }
     ],
-    "minimum-stability": "stable",
-    "require": {
-        "wixnit/core": "^2.0"
-    }
+    "minimum-stability": "stable"
 }

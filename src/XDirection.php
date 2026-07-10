@@ -88,7 +88,7 @@
             else if (($this->value > 180) && ($this->value < 270)) 
             {
                 $ret->degrees = ($this->value - 180);
-                $ret->direction = Direction::SOUTH_EAST;
+                $ret->direction = Direction::SOUTH_WEST;
             } 
             else if ($this->value == 270) 
             {
@@ -98,7 +98,7 @@
             else if (($this->value > 270) && ($this->value < 360)) 
             {
                 $ret->degrees = 90 - (($this->value - 90) - 180);
-                $ret->direction = Direction::NORTH;
+                $ret->direction = Direction::NORTH_WEST;
             } 
             else if ($this->value == 360) 
             {

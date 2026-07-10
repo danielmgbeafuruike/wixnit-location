@@ -4,49 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7eef055e6787e8f0fb8c62d8d17128c1",
-    "packages": [
-        {
-            "name": "wixnit/core",
-            "version": "2.2.2",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/danielmgbeafuruike/wixnit.git",
-                "reference": "e120a51f5493e71870fe7432034ba0ad94e44639"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/danielmgbeafuruike/wixnit/zipball/e120a51f5493e71870fe7432034ba0ad94e44639",
-                "reference": "e120a51f5493e71870fe7432034ba0ad94e44639",
-                "shasum": ""
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Wixnit\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Daniel Mgbeafuruike",
-                    "email": "danidainid@yahoo.com"
-                }
-            ],
-            "description": "Awesome, slim, sleak php framework",
-            "keywords": [
-                "framework"
-            ],
-            "support": {
-                "issues": "https://github.com/danielmgbeafuruike/wixnit/issues",
-                "source": "https://github.com/danielmgbeafuruike/wixnit/tree/2.2.2"
-            },
-            "time": "2026-01-22T15:43:00+00:00"
-        }
-    ],
+    "content-hash": "a7c9678d59a75f46707ef8e85e132897",
+    "packages": [],
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "stable",

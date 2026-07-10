@@ -12,7 +12,7 @@
         public ?Address $address = null;
 
         /**
-         * @var array
+         * @var array<Location>
          */
         public array $boundingArea = [];
 
@@ -42,55 +42,108 @@
 
         public function centerPosition(): Location
         {
-            if(count($this->boundingArea) == 0)
+            $count = count($this->boundingArea);
+
+            if($count == 0)
             {
                 return new Location();
             }
-            else if(count($this->boundingArea) == 1)
+            else if($count == 1)
             {
                 return $this->boundingArea[0];
             }
-            else if(count($this->boundingArea) == 2)
-            {
-                $ret = new Location();
-                $ret->latitude = (($this->boundingArea[0]->latitude + $this->boundingArea[1]->latitude) / 2);
-                $ret->longitude = (($this->boundingArea[0]->longitude + $this->boundingArea[1]->longitude) / 2);
-                $ret->latitude = (($this->boundingArea[0]->altitude + $this->boundingArea[1]->latitude) / 2);
-                $ret->accuracy = (($this->boundingArea[0]->accuracy + $this->boundingArea[1]->accuracy) / 2);
 
-                return $ret;
-            }
-            else
+            $latitude = 0.0;
+            $longitude = 0.0;
+            $altitude = 0.0;
+            $accuracy = 0.0;
+
+            foreach($this->boundingArea as $point)
             {
-                
+                $latitude += $point->cordinate->latitude;
+                $longitude += $point->cordinate->longitude;
+                $altitude += $point->cordinate->altitude;
+                $accuracy += $point->cordinate->accuracy;
             }
-            return new Location();
+
+            $ret = new Location();
+            $ret->cordinate->latitude = $latitude / $count;
+            $ret->cordinate->longitude = $longitude / $count;
+            $ret->cordinate->altitude = $altitude / $count;
+            $ret->cordinate->accuracy = $accuracy / $count;
+
+            return $ret;
         }
 
+        /**
+         * Checks whether $position falls within this LocationReference's bounding area.
+         * - 0 points: always false, there is no area to be "in"
+         * - 1 point: true if $position is within $minRadius metres of that point
+         * - 2 points: treated as opposite corners of a bounding box
+         * - 3+ points: treated as a polygon (ray casting point-in-polygon test)
+         */
         public function isInLocation(Location $position): bool
         {
-            if(count($this->boundingArea) == 0)
+            $count = count($this->boundingArea);
+
+            if($count == 0)
             {
                 return false;
             }
-            else if(count($this->boundingArea) == 1)
+            else if($count == 1)
             {
-                return $this->boundingArea[0];
+                return $this->boundingArea[0]->cordinate->distance($position->cordinate) <= $this->minRadius;
             }
-            else if(count($this->boundingArea) == 2)
+            else if($count == 2)
             {
-                return false;
+                $lat1 = $this->boundingArea[0]->cordinate->latitude;
+                $lat2 = $this->boundingArea[1]->cordinate->latitude;
+                $lon1 = $this->boundingArea[0]->cordinate->longitude;
+                $lon2 = $this->boundingArea[1]->cordinate->longitude;
+
+                $minLat = min($lat1, $lat2);
+                $maxLat = max($lat1, $lat2);
+                $minLon = min($lon1, $lon2);
+                $maxLon = max($lon1, $lon2);
+
+                return ($position->cordinate->latitude >= $minLat && $position->cordinate->latitude <= $maxLat
+                    && $position->cordinate->longitude >= $minLon && $position->cordinate->longitude <= $maxLon);
             }
             else
             {
-                
+                return $this->pointInPolygon($position);
             }
-            return false;
+        }
+
+        private function pointInPolygon(Location $position): bool
+        {
+            $inside = false;
+            $x = $position->cordinate->longitude;
+            $y = $position->cordinate->latitude;
+            $vertexCount = count($this->boundingArea);
+
+            for($i = 0, $j = $vertexCount - 1; $i < $vertexCount; $j = $i++)
+            {
+                $xi = $this->boundingArea[$i]->cordinate->longitude;
+                $yi = $this->boundingArea[$i]->cordinate->latitude;
+                $xj = $this->boundingArea[$j]->cordinate->longitude;
+                $yj = $this->boundingArea[$j]->cordinate->latitude;
+
+                $intersects = (($yi > $y) != ($yj > $y))
+                    && ($x < ($xj - $xi) * ($y - $yi) / ($yj - $yi) + $xi);
+
+                if($intersects)
+                {
+                    $inside = !$inside;
+                }
+            }
+
+            return $inside;
         }
 
         public function distance (LocationReference $location) : float
         {
-            return $this->centerPosition()->Distance($location->centerPosition());
+            return $this->centerPosition()->cordinate->distance($location->centerPosition()->cordinate);
         }
 
         public function direction (LocationReference $location) : XDirection
@@ -102,7 +155,7 @@
 
         public function geoCode() : Address
         {
-            return Geocoding::forward($this->centerPosition());
+            return GeoCoding::forward($this->centerPosition());
         }
 
         public function reverseGeocode() : Location
@@ -116,170 +169,93 @@
         {
             $ret = [
                 "address"=>[
-                    "country"=>$this->address->country,
+                    "country"=>$this->address->country->code,
                     "state"=>$this->address->state,
                     "city"=>$this->address->city,
                     "street"=>$this->address->street,
                     "region"=>$this->address->region,
-                    "housenumber"=>$this->address->houseNumber
+                    "houseNumber"=>$this->address->houseNumber
                 ],
-                "boundingArea"=>$this->boundingArea
+                "boundingArea"=>array_map(function(Location $point) {
+                    return [
+                        "cordinate"=>[
+                            "latitude"=>$point->cordinate->latitude,
+                            "longitude"=>$point->cordinate->longitude,
+                            "altitude"=>$point->cordinate->altitude,
+                            "accuracy"=>$point->cordinate->accuracy
+                        ]
+                    ];
+                }, $this->boundingArea)
             ];
             return json_encode($ret);
         }
 
         public static function FromString($string) : LocationReference
         {
-            $ret = LocationReference::noWhere();
-            try{
-                $loc = null;
+            $ret = LocationReference::NoWhere();
 
-                if(is_string($string))
+            try
+            {
+                $d = is_string($string) ? json_decode($string) : $string;
+
+                if($d === null)
                 {
-                    $d = json_decode($string);
+                    return $ret;
+                }
 
-                    if(isset($d->address))
+                if(isset($d->address))
+                {
+                    $addr = $d->address;
+
+                    if(isset($addr->state) && is_string($addr->state))
                     {
-                        if(isset($d->address->state))
+                        $ret->address->state = $addr->state;
+                    }
+                    if(isset($addr->city) && is_string($addr->city))
+                    {
+                        $ret->address->city = $addr->city;
+                    }
+                    if(isset($addr->country))
+                    {
+                        if(is_string($addr->country))
                         {
-                            if(is_string($d->address->state))
-                            {
-                                $ret->address->state = new $d->address->state;
-                            }
-                            else if($d->address->state instanceof State)
-                            {
-                                if(isset($d->address->state->Id))
-                                {
-                                    $ret->address->state = $d->address->state->name;
-                                }
-                            }
+                            $ret->address->country = Country::ByCode($addr->country);
                         }
-                        if(isset($d->address->city))
+                        else if(is_object($addr->country) && isset($addr->country->code))
                         {
-                            if(is_string($d->address->city))
-                            {
-                                $ret->address->city = $d->address->city;
-                            }
-                            else if(is_object($d->address->city))
-                            {
-                                if(isset($d->address->city->id))
-                                {
-                                    $ret->address->city = $d->address->city->name;
-                                }
-                            }
-                        }
-                        if(isset($d->address->country))
-                        {
-                            if(is_string($d->address->country))
-                            {
-                                $ret->address->country = $d->address->country;
-                            }
-                            else if($d->address->country instanceof Country)
-                            {
-                                $ret->address->country = $d->address->country->code;
-                            }
-                        }
-                        if(isset($d->address->region))
-                        {
-                            $ret->address->region = $d->address->region;
-                        }
-                        if(isset($d->address->houseNumber))
-                        {
-                            $ret->address->houseNumber = $d->address->houseNumber;
-                        }
-                        if(isset($d->address->street))
-                        {
-                            $ret->address->street = $d->address->street;
+                            $ret->address->country = Country::ByCode($addr->country->code);
                         }
                     }
-                    if(isset($d->boundingArea))
+                    if(isset($addr->region) && is_string($addr->region))
                     {
-                        if(is_array($d->boundingArea))
-                        {
-                            for($i = 0; $i < count($d->boundingArea); $i++)
-                            {
-                                $ret = new Location();
-                                $ret->latitude = (($d->boundingArea[0]->latitude + $d->boundingArea[1]->latitude) / 2);
-                                $ret->longitude = (($d->boundingArea[0]->longitude + $d->boundingArea[1]->longitude) / 2);
-                                $ret->latitude = (($d->boundingArea[0]->altitude + $d->boundingArea[1]->latitude) / 2);
-                                $ret->accuracy = (($d->boundingArea[0]->accuracy + $d->boundingArea[1]->accuracy) / 2);
-                                $d->boundingArea[] = $ret;
-                            }
-                        }
+                        $ret->address->region = $addr->region;
+                    }
+                    if(isset($addr->houseNumber) && is_string($addr->houseNumber))
+                    {
+                        $ret->address->houseNumber = $addr->houseNumber;
+                    }
+                    if(isset($addr->street) && is_string($addr->street))
+                    {
+                        $ret->address->street = $addr->street;
                     }
                 }
-                else if(is_object($string))
+
+                if(isset($d->boundingArea) && is_array($d->boundingArea))
                 {
-                    if(isset($string->address))
+                    foreach($d->boundingArea as $point)
                     {
-                        if(isset($string->address->state))
+                        $location = new Location();
+
+                        if(isset($point->cordinate))
                         {
-                            if(is_string($string->address->state))
-                            {
-                                $ret->address->state = new State($string->address->state);
-                            }
-                            else if(is_object($string->address->state))
-                            {
-                                if(isset($string->address->state->id))
-                                {
-                                    $ret->address->State = new State($string->address->state->id);
-                                }
-                            }
+                            $c = $point->cordinate;
+                            $location->cordinate->latitude = isset($c->latitude) ? doubleval($c->latitude) : 0.00;
+                            $location->cordinate->longitude = isset($c->longitude) ? doubleval($c->longitude) : 0.00;
+                            $location->cordinate->altitude = isset($c->altitude) ? doubleval($c->altitude) : 0.00;
+                            $location->cordinate->accuracy = isset($c->accuracy) ? doubleval($c->accuracy) : 0.00;
                         }
-                        if(isset($string->address->city))
-                        {
-                            if(is_string($string->address->city))
-                            {
-                                $ret->address->city = new State($string->address->city);
-                            }
-                            else if(is_object($string->address->City))
-                            {
-                                if(isset($string->address->City->Id))
-                                {
-                                    $ret->address->City = new State($string->address->City->Id);
-                                }
-                            }
-                        }
-                        if(isset($string->address->country))
-                        {
-                            if(is_string($string->address->country))
-                            {
-                                $ret->address->country = $string->address->country;
-                            }
-                            else if($string->address->country instanceof Country)
-                            {
-                                $ret->address->country = $string->address->country->code;
-                            }
-                        }
-                        if(isset($string->address->region))
-                        {
-                            $ret->address->region = $string->address->region;
-                        }
-                        if(isset($string->address->houseNumber))
-                        {
-                            $ret->address->houseNumber = $string->address->houseNumber;
-                        }
-                        if(isset($string->address->Street))
-                        {
-                            $ret->address->Street = $string->address->Street;
-                        }
-                    }
-                    if(isset($string->boundingArea))
-                    {
-                        if(is_array($string->boundingArea))
-                        {
-                            for($i = 0; $i < count($string->boundingArea); $i++)
-                            {
-                                array_push($ret->boundingArea, 
-                                    new Location(
-                                        $string->boundingArea[$i]->Latitude, 
-                                        $string->boundingArea[$i]->Longitude, 
-                                        $string->boundingArea[$i]->Altitude, 
-                                        $string->boundingArea[$i]->Accuracy
-                                    )
-                                );
-                            }
-                        }
+
+                        $ret->boundingArea[] = $location;
                     }
                 }
             }
@@ -304,10 +280,20 @@
         }
 
 
-        public static function GetDirection(Location $start, Location $end): XDirection 
+        /**
+         * Computes the compass bearing (great-circle initial bearing) from $start to $end.
+         */
+        public static function GetDirection(Location $start, Location $end): XDirection
         {
-            $ret = new XDirection();
-            
-            return $ret;
+            $lat1 = deg2rad($start->cordinate->latitude);
+            $lat2 = deg2rad($end->cordinate->latitude);
+            $deltaLon = deg2rad($end->cordinate->longitude - $start->cordinate->longitude);
+
+            $y = sin($deltaLon) * cos($lat2);
+            $x = cos($lat1) * sin($lat2) - sin($lat1) * cos($lat2) * cos($deltaLon);
+
+            $bearing = fmod((rad2deg(atan2($y, $x)) + 360), 360);
+
+            return new XDirection($bearing);
         }
     }

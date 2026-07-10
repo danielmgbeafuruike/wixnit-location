@@ -12,13 +12,13 @@
         public float $altitude = 0.00;
         public float $accuracy = 0.0;
 
-        public static function Nowhere()
+        public static function Nowhere(): Cordinate
         {
-            $ret = new Location();
+            $ret = new Cordinate();
             $ret->longitude = 0.00;
             $ret->latitude = 0.00;
             $ret->altitude = 0.00;
-            $ret->speed = 0.00;
+            $ret->accuracy = 0.00;
             return $ret;
         }
 
@@ -50,9 +50,9 @@
             return $ret;
         }
 
-        public static function FromJsonObject($object)
+        public static function FromJsonObject($object): Cordinate
         {
-            $ret = new Location();
+            $ret = new Cordinate();
             
             if(is_object($object))
             {
