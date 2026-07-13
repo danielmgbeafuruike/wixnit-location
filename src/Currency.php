@@ -33,7 +33,7 @@
             return self::$currenciesData;
         }
 
-        private static function fromRow(array $row): Currency
+        protected static function fromRow(array $row): Currency
         {
             $ret = new Currency();
             $ret->name = $row['name'];
@@ -59,7 +59,7 @@
             return new Currency();
         }
 
-        private function fromCode(string $code): void
+        public function fromCode(string $code): void
         {
             $found = Currency::ByCode($code);
 

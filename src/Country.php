@@ -39,7 +39,7 @@
             return self::$countriesData;
         }
 
-        private static function fromRow(array $row): Country
+        protected static function fromRow(array $row): Country
         {
             $ret = new Country();
             $ret->name = $row['name'];
