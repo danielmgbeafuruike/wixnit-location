@@ -2,10 +2,7 @@
 
     namespace Wixnit\Location;
 
-    use Wixnit\Enum\DBFieldType;
-    use Wixnit\Interfaces\ISerializable;
-
-    class Currency implements ISerializable
+    class Currency
     {
         public string $name = "";
 		public string $country = "";
@@ -73,20 +70,15 @@
             $this->countryCode = $found->countryCode;
         }
 
-
-
-        public function _dbType(): DBFieldType
+        public static function All(): array
         {
-            return DBFieldType::VARCHAR;
-        }
+            $ret = [];
 
-        public function _serialize()
-        {
-            return $this->code;
-        }
+            foreach (self::data() as $currency)
+            {
+                $ret[] = self::fromRow($currency);
+            }
 
-        public function _deserialize($data): void
-        {
-            $this->fromCode($data);
+            return $ret;
         }
     }

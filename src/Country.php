@@ -2,9 +2,6 @@
 
     namespace Wixnit\Location;
 
-    use Wixnit\Enum\DBFieldType;
-    use Wixnit\Interfaces\ISerializable;
-
 
     class Country
     {
