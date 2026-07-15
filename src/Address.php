@@ -27,4 +27,16 @@
         {
             return GeoCoding::reverse($this);
         }
+
+        public static function From(Country $country, string $state, string $city, string $street="", string $houseNum="", string $region=""): Address
+        {
+            $ret = new Address();
+            $ret->country = $country;
+            $ret->state = $state;
+            $ret->city = $city;
+            $ret->street = $street;
+            $ret->houseNumber = $houseNum;
+            $ret->region = $region;
+            return $ret;
+        }
     }
